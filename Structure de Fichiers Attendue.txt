@@ -1,0 +1,20 @@
+fiitech-test/
+├── README.md
+├── requirements.txt
+├── manage.py
+├── fiitech/
+│   ├── __init__.py
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+├── content/
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── models.py
+│   ├── views.py
+│   ├── serializers.py
+│   ├── urls.py
+│   └── tests.py
+└── templates/
+    └── admin/
+        └── base_site.html
