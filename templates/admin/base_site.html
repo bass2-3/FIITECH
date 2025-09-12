@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Administration FIITECH{% endblock %}</title>
+    
+    <!-- CSS Django Admin par défaut -->
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/base.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/dashboard.css' %}">
+    
+    <!-- CSS personnalisé -->
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #3b82f6;
+            --accent-color: #ef4444;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --background-color: #f8fafc;
+            --card-background: #ffffff;
+            --text-color: #1e293b;
+            --border-color: #e2e8f0;
+            --sidebar-width: 240px;
+        }
+
+        /* Structure générale pour footer fixe */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #content {
+            flex: 1;
+        }
+
+        /* Header personnalisé */
+        #header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-bottom: none;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        #branding {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+        }
+
+        #branding .logo {
+            height: 40px;
+            width: auto;
+            margin-right: 15px;
+        }
+
+        #branding h1 {
+            color: white;
+            font-size: 24px;
+            font-weight: 300;
+            margin: 0;
+            padding: 5px 0;
+        }
+
+        #branding h1 a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        #user-tools {
+            color: white;
+            font-weight: 300;
+            position: absolute;
+            top: 15px;
+            right: 20px;
+        }
+
+        #user-tools a {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+        }
+
+        #user-tools a:hover {
+            color: var(--warning-color);
+            transform: translateY(-1px);
+        }
+
+        /* Style pour le formulaire de déconnexion */
+        #user-tools form {
+            display: inline;
+            margin: 0;
+        }
+
+        #user-tools button {
+            background: none;
+            border: none;
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-size: inherit;
+            font-family: inherit;
+        }
+
+        #user-tools button:hover {
+            color: var(--warning-color);
+            transform: translateY(-1px);
+        }
+
+        /* Navigation */
+        .breadcrumbs {
+            background: var(--card-background);
+            border-bottom: 1px solid var(--border-color);
+            padding: 15px 20px;
+            margin: 0;
+        }
+
+        .breadcrumbs a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .breadcrumbs a:hover {
+            color: var(--accent-color);
+        }
+
+        /* Contenu principal */
+        #content {
+            background: var(--background-color);
+            padding: 20px;
+        }
+
+        /* Dashboard */
+        .dashboard #content {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .dashboard .module {
+            background: var(--card-background);
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            margin-bottom: 24px;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .dashboard .module:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .dashboard .module h2 {
+            background: var(--primary-color);
+            color: white;
+            margin: 0;
+            padding: 15px 20px;
+            font-size: 18px;
+            font-weight: 400;
+        }
+
+        .dashboard .module th,
+        .dashboard .module td {
+            padding: 12px 20px;
+            border-bottom: 1px solid #f8f9fa;
+        }
+
+        .dashboard .module tr:hover {
+            background: #f8f9fa;
+        }
+
+        /* Liens d'actions */
+        .addlink::before {
+            content: "+ ";
+            font-weight: bold;
+            color: var(--success-color);
+        }
+
+        .changelink::before {
+            content: "✏️ ";
+        }
+
+        .deletelink::before {
+            content: "🗑️ ";
+        }
+
+        /* Tables */
+        #changelist {
+            background: var(--card-background);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        #changelist .results {
+            border: none;
+        }
+
+        #changelist table thead th {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 15px;
+            font-weight: 400;
+        }
+
+        #changelist table tbody td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f8f9fa;
+        }
+
+        #changelist table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        /* Formulaires */
+        .form-row {
+            background: var(--card-background);
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+            padding: 20px;
+        }
+
+        .form-row label {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        input, textarea, select {
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            padding: 8px 12px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+            outline: none;
+        }
+
+        /* Boutons */
+        .button, input[type="submit"], input[type="button"] {
+            background: var(--secondary-color);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 10px 24px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        }
+
+        .button:hover, input[type="submit"]:hover, input[type="button"]:hover {
+            background: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .button.default, input[type="submit"].default {
+            background: var(--success-color);
+        }
+
+        .button.default:hover, input[type="submit"].default:hover {
+            background: #229954;
+        }
+
+        /* Messages */
+        .messagelist {
+            margin: 0 0 20px 0;
+        }
+
+        .messagelist li {
+            border-radius: 4px;
+            margin-bottom: 10px;
+            padding: 15px 20px;
+            position: relative;
+        }
+
+        .messagelist .success {
+            background: rgba(39, 174, 96, 0.1);
+            border-left: 4px solid var(--success-color);
+            color: var(--success-color);
+        }
+
+        .messagelist .error {
+            background: rgba(231, 76, 60, 0.1);
+            border-left: 4px solid var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        .messagelist .warning {
+            background: rgba(243, 156, 18, 0.1);
+            border-left: 4px solid var(--warning-color);
+            color: var(--warning-color);
+        }
+
+        /* Pagination */
+        .paginator {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .paginator a, .paginator .this-page {
+            background: var(--card-background);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-color);
+            display: inline-block;
+            margin: 0 5px;
+            padding: 8px 12px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .paginator a:hover {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .paginator .this-page {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        /* Filtres */
+        #changelist-filter {
+            background: var(--card-background);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        #changelist-filter h2 {
+            background: var(--primary-color);
+            color: white;
+            margin: 0;
+            padding: 15px;
+        }
+
+        #changelist-filter li {
+            padding: 8px 15px;
+        }
+
+        #changelist-filter a {
+            color: var(--text-color);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        #changelist-filter a:hover,
+        #changelist-filter .selected {
+            color: var(--secondary-color);
+        }
+
+        /* Actions */
+        .actions {
+            background: var(--card-background);
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+            padding: 15px;
+        }
+
+        /* Footer fixe */
+        #footer {
+            background: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 24px;
+            margin-top: auto;
+            box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1), 0 -2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        #footer p {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            #content {
+                padding: 10px;
+            }
+            
+            .dashboard .module {
+                margin-bottom: 15px;
+            }
+            
+            .dashboard .module h2 {
+                padding: 12px 15px;
+                font-size: 16px;
+            }
+            
+            #changelist table {
+                font-size: 14px;
+            }
+
+            #user-tools {
+                position: static;
+                text-align: center;
+                margin-top: 10px;
+            }
+
+            #branding {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            #branding .logo {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+        }
+
+        /* Animation de chargement */
+        .loading {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .loading::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .loading::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 24px;
+            height: 24px;
+            margin: -12px 0 0 -12px;
+            border: 3px solid var(--secondary-color);
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            z-index: 11;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Badges de statut */
+        .status-badge {
+            border-radius: 9999px;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .status-active {
+            background: var(--success-color);
+        }
+
+        .status-inactive {
+            background: var(--accent-color);
+        }
+
+        .status-pending {
+            background: var(--warning-color);
+        }
+    </style>
+</head>
+
+<body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %} {% if user.is_authenticated %}dashboard{% endif %}">
+
+    <!-- Container principal -->
+    <div id="container">
+
+        <!-- Header -->
+        <div id="header">
+            <div id="branding">
+                <!-- Logo FIITECH - Remplacez l'URL par celle du vrai logo -->
+                <img src="{% static 'img/admin/fiitech.png' %}" alt="FIITECH" class="logo">
+                <h1 id="site-name">
+                    <a href="{% url 'admin:index' %}">
+                        {% block branding %}FIITECH{% endblock %}
+                    </a>
+                </h1>
+            </div>
+            
+            {% if user.is_active and user.is_staff %}
+                <div id="user-tools">
+                    Bienvenue, 
+                    <strong>{% firstof user.get_short_name user.get_username %}</strong>.
+                    <a href="{% url 'admin:password_change' %}">Changer le mot de passe</a> /
+                    
+                    <!-- Formulaire de déconnexion avec token CSRF -->
+                    <form method="post" action="{% url 'admin:logout' %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit">Déconnexion</button>
+                    </form>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Navigation breadcrumbs -->
+        {% if not is_popup %}
+            {% block breadcrumbs %}
+                <div class="breadcrumbs">
+                    <a href="{% url 'admin:index' %}">Accueil</a>
+                    {% if title %} › {{ title }}{% endif %}
+                </div>
+            {% endblock %}
+        {% endif %}
+
+        <!-- Messages -->
+        {% if messages %}
+            <ul class="messagelist">
+                {% for message in messages %}
+                    <li class="{{ message.tags }}">{{ message|capfirst }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <!-- Contenu principal -->
+        <div id="content" class="{% block coltype %}colM{% endblock %}">
+            {% block pretitle %}{% endblock %}
+            {% block content_title %}
+                {% if title %}
+                    <h1>{{ title }}</h1>
+                {% endif %}
+            {% endblock %}
+            
+            {% block content %}
+                {% block object-tools %}{% endblock %}
+                {{ content }}
+            {% endblock %}
+            
+            {% block sidebar %}{% endblock %}
+        </div>
+
+        <!-- Footer fixe -->
+        <div id="footer">
+            <p>&copy; 2025 FIITECH Admin - Développé avec Django</p>
+        </div>
+    </div>
+</body>
+</html>
