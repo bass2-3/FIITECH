@@ -18,25 +18,25 @@ Cloner le projet:
 git clone https://github.com/bass2-3/FIITECH.git
 cd FIITECH
 
-Créer un environnement virtuel:
+## **Créer un environnement virtuel**
 python -m venv venv
 source venv/bin/activate  # Linux/Mac
 venv\Scripts\activate     # Windows
 
-Installer les dépendances:
+## **Installer les dépendances**
 pip install django djangorestframework pillow
 
-Configuration Initiale:
-Créer et appliquer les migrations:
+## **Configuration Initiale:**
+### **Créer et appliquer les migrations**
 python manage.py makemigrations
 python manage.py migrate
 
-Créer un superutilisateur:
+### **Créer un superutilisateur**
 python manage.py createsuperuser
 
-Collecter les fichiers statiques:
+### **Collecter les fichiers statiques**
 python manage.py collectstatic
 
-Lancer le serveur:
+### **Lancer le serveur**
 python manage.py runserver
 
